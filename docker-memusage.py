@@ -33,7 +33,8 @@ def get_process_mem_usage():
         except KeyError:
             continue
 
-    return OrderedDict(sorted(pid2usage.iteritems(), key=lambda x: x[1], reverse=True))
+    return OrderedDict(
+        sorted(pid2usage.iteritems(), key=lambda x: x[1], reverse=True))
 
 pid2usage = get_process_mem_usage()
 total_usage = sum(pid2usage.values())
