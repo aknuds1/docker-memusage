@@ -1,9 +1,7 @@
 #!/usr/bin/env python
 from collections import OrderedDict
-from pprint import pprint
 import os.path
 import re
-import sys
 
 
 def parse_mem_file(filename):
@@ -33,7 +31,9 @@ def get_process_mem_usage():
             continue
 
         try:
-            pid2usage[pid] = int(re_mem.match(data['VmHWM']).group(1)) / 1024.
+            name = data['name']
+            pid2usage[(pid, name)] = int(
+                re_mem.match(data['VmHWM']).group(1)) / 1024.
         except KeyError:
             continue
 
@@ -44,5 +44,6 @@ def get_process_mem_usage():
 pid2usage = get_process_mem_usage()
 total_usage = sum(pid2usage.values())
 print('Total memory usage: {:.2f}'.format(total_usage))
-for pid, usage in pid2usage.iteritems():
-    print('{}: {:.2f} MB'.format(pid, usage))
+for pid_etc, usage in pid2usage.iteritems():
+    [pid, name] = pid
+    print('{} ({}): {:.2f} MB'.format(name, pid, usage))
