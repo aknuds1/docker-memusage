@@ -31,7 +31,7 @@ def get_process_mem_usage():
             continue
 
         try:
-            name = data['name']
+            name = data['Name']
             pid2usage[(pid, name)] = int(
                 re_mem.match(data['VmHWM']).group(1)) / 1024.
         except KeyError:
@@ -45,5 +45,5 @@ pid2usage = get_process_mem_usage()
 total_usage = sum(pid2usage.values())
 print('Total memory usage: {:.2f}'.format(total_usage))
 for pid_etc, usage in pid2usage.iteritems():
-    [pid, name] = pid
+    [pid, name] = pid_etc
     print('{} ({}): {:.2f} MB'.format(name, pid, usage))
