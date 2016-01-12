@@ -15,7 +15,7 @@ def parse_mem_file(filename):
     return data
 
 
-def meminfo():
+def get_system_mem_usage():
     """Return the information in /proc/meminfo
     as a dictionary."""
     return parse_mem_file('/proc/meminfo')
@@ -27,7 +27,11 @@ def get_process_mem_usage():
     pid2usage = {}
     for pid in [d for d in os.listdir('/proc') if re_pid.match(d)]:
         fpath = os.path.join('/proc', pid, 'status')
-        data = parse_mem_file(fpath)
+        try:
+            data = parse_mem_file(fpath)
+        except IOError:
+            continue
+
         try:
             pid2usage[pid] = int(re_mem.match(data['VmHWM']).group(1)) / 1024.
         except KeyError:
@@ -35,6 +39,7 @@ def get_process_mem_usage():
 
     return OrderedDict(
         sorted(pid2usage.iteritems(), key=lambda x: x[1], reverse=True))
+
 
 pid2usage = get_process_mem_usage()
 total_usage = sum(pid2usage.values())
