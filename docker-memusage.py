@@ -32,8 +32,10 @@ def get_process_mem_usage():
 
         try:
             name = data['Name']
-            pid2usage[(pid, name)] = int(
-                re_mem.match(data['VmHWM']).group(1)) / 1024.
+            pid2usage[(pid, name)] = {
+                'VmRSS': int(re_mem.match(data['VmRSS']).group(1)) / 1000.,
+                'VmSwap': int(re_mem.match(data['VmSwap']).group(1)) / 1000.,
+            }
         except KeyError:
             continue
 
@@ -43,7 +45,7 @@ def get_process_mem_usage():
 
 pid2usage = get_process_mem_usage()
 total_usage = sum(pid2usage.values())
-print('Total memory usage: {:.2f}'.format(total_usage))
+print('Total memory usage: {:.2f} MB'.format(total_usage))
 for pid_etc, usage in pid2usage.iteritems():
     [pid, name] = pid_etc
     print('{} ({}): {:.2f} MB'.format(name, pid, usage))
