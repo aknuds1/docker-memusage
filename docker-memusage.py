@@ -33,7 +33,7 @@ def get_process_mem_usage():
         try:
             name = data['Name']
             ram_usage = int(re_mem.match(data['VmRSS']).group(1)) / 1000.
-            swap_usage =  int(re_mem.match(data['VmSwap']).group(1)) / 1000.
+            swap_usage = int(re_mem.match(data['VmSwap']).group(1)) / 1000.
             pid2usage[(pid, name)] = {
                 'VmRSS': ram_usage,
                 'VmSwap': swap_usage,
