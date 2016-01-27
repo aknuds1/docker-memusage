@@ -32,20 +32,27 @@ def get_process_mem_usage():
 
         try:
             name = data['Name']
+            ram_usage = int(re_mem.match(data['VmRSS']).group(1)) / 1000.
+            swap_usage =  int(re_mem.match(data['VmSwap']).group(1)) / 1000.
             pid2usage[(pid, name)] = {
-                'VmRSS': int(re_mem.match(data['VmRSS']).group(1)) / 1000.,
-                'VmSwap': int(re_mem.match(data['VmSwap']).group(1)) / 1000.,
+                'VmRSS': ram_usage,
+                'VmSwap': swap_usage,
+                'total': ram_usage + swap_usage,
             }
         except KeyError:
             continue
 
     return OrderedDict(
-        sorted(pid2usage.iteritems(), key=lambda x: x[1], reverse=True))
+        sorted(
+            pid2usage.iteritems(), key=lambda x: x[1]['total'], reverse=True))
 
 
 pid2usage = get_process_mem_usage()
-total_usage = sum(pid2usage.values())
-print('Total memory usage: {:.2f} MB'.format(total_usage))
+total_ram_usage = sum([u['VmRSS'] for u in pid2usage.values()])
+print('Total physical memory usage: {:.2f} MB'.format(total_ram_usage))
+total_swap_usage = sum([u['VmSwap'] for u in pid2usage.values()])
+print('Total swap memory usage: {:.2f} MB'.format(total_swap_usage))
 for pid_etc, usage in pid2usage.iteritems():
     [pid, name] = pid_etc
-    print('{} ({}): {:.2f} MB'.format(name, pid, usage))
+    print('{} ({}): {:.2f} MB physical memory, {:.2f} MB swap memory'.format(
+        name, pid, usage['VmRSS'], usage['VmSwap']))
